@@ -35,8 +35,14 @@ export default defineConfig({
     port: 5173,
     open: true,
   },
+  preview: {
+    port: 4173,
+    host: '0.0.0.0',
+    allowedHosts: ['clinicalbridge.onrender.com', 'localhost'],
+  },
   build: {
     outDir: 'dist',
     sourcemap: true,
+    chunkSizeWarningLimit: 1000,
   },
 })
