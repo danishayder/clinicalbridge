@@ -8,10 +8,11 @@ import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/useToast'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { useEvaluations, useEvalTemplates, useRemediationPlans, useEvaluationStats } from '@/hooks/data'
-import { ClipboardList, Plus, Star, AlertTriangle, TrendingUp, FileText, Loader2 } from 'lucide-react'
+import { ClipboardList, Plus, FileText, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function EvaluationsPage() {
-  const { user, isAdmin } = useAuth()
+  const { isAdmin } = useAuth()
   const { toast } = useToast()
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState<'list' | 'templates' | 'remediation' | 'trends'>('list')
@@ -19,7 +20,7 @@ export function EvaluationsPage() {
   const { data: evaluations, isLoading: evalsLoading } = useEvaluations()
   const { data: templates } = useEvalTemplates()
   const { data: remediationPlans } = useRemediationPlans()
-  const { data: stats, isLoading: statsLoading } = useEvaluationStats()
+  const { data: stats } = useEvaluationStats()
 
   const activeEvals = stats?.activeEvals || 0
   const completed = stats?.completed || 0
@@ -295,5 +296,3 @@ export function EvaluationsPage() {
     </div>
   )
 }
-
-import { cn } from '@/lib/utils'

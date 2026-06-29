@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/useToast'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { usePlacements, useSiteCapacities, useAffiliationAgreements } from '@/hooks/data'
 import { MapPin, Plus, Filter, AlertTriangle, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type TabType = 'map' | 'roster' | 'sites' | 'auto' | 'agreements'
 
@@ -354,5 +355,3 @@ export function PlacementsPage() {
     </div>
   )
 }
-
-import { cn } from '@/lib/utils'

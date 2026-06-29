@@ -11,12 +11,12 @@ import {
   useTimecards, useTimecardStats, useClockIn, useClockOut, useAttestTimecard, usePendingAttestations 
 } from '@/hooks/data'
 import { 
-  Clock, Play, Square, AlertTriangle, MapPin, CheckCircle, 
-  Calendar, TrendingUp, Clock3, Loader2 
+  Play, Square, AlertTriangle, MapPin, CheckCircle, Loader2 
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function TimecardsPage() {
-  const { user, isStudent, isCI } = useAuth()
+  const { user } = useAuth()
   const { toast } = useToast()
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState<'clock' | 'roster' | 'attest' | 'audit'>('clock')
@@ -25,7 +25,7 @@ export function TimecardsPage() {
   const [currentTime, setCurrentTime] = useState(new Date())
 
   const { data: timecards, isLoading: timecardsLoading } = useTimecards()
-  const { data: stats, isLoading: statsLoading } = useTimecardStats()
+  const { data: stats } = useTimecardStats()
   const clockInMutation = useClockIn()
   const clockOutMutation = useClockOut()
   const attestMutation = useAttestTimecard()
@@ -348,5 +348,3 @@ export function TimecardsPage() {
     </div>
   )
 }
-
-import { cn } from '@/lib/utils'

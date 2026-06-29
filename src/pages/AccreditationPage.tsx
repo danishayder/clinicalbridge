@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/useToast'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { useStandards, useCourses, useUpdateMapping } from '@/hooks/data'
 import { Cpu, Download, CheckCircle, AlertTriangle, FileText, Plus, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function AccreditationPage() {
   const { isAdmin } = useAuth()
@@ -325,5 +326,3 @@ export function AccreditationPage() {
     </div>
   )
 }
-
-import { cn } from '@/lib/utils'

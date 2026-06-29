@@ -6,10 +6,11 @@ import { ActivityFeed } from '@/components/modules/ActivityFeed'
 import { useToast } from '@/hooks/useToast'
 import { useDashboardStats, useRecentActivity, useActionItems } from '@/hooks/data'
 import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function DashboardPage() {
   const { toast } = useToast()
-  const { data: stats, isLoading: statsLoading } = useDashboardStats()
+  const { data: stats } = useDashboardStats()
   const { data: activities, isLoading: activitiesLoading } = useRecentActivity(10)
   const { data: actionItems, isLoading: itemsLoading } = useActionItems()
 
@@ -103,5 +104,3 @@ export function DashboardPage() {
     </div>
   )
 }
-
-import { cn } from '@/lib/utils'

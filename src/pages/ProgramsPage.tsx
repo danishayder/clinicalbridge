@@ -38,7 +38,7 @@ function useCreateProgram() {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   return useMutation({
-    mutationFn: async (program: Omit<Program, 'id' | 'created_at'>) => {
+    mutationFn: async (program: any) => {
       const { data, error } = await supabase
         .from('programs')
         .insert(program)
