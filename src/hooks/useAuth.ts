@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { supabase } from '@/lib/supabase'
 import type { Profile, UserRole } from '@/types'
+import { useEffect } from 'react'  // ← Fixed: Use import instead of require
 
 interface AuthState {
   user: Profile | null
@@ -109,7 +110,6 @@ export function useAuth() {
 // Auth initialization hook
 export function useAuthInit() {
   const { setUser, setSession, setLoading } = useAuthStore()
-  const { useEffect } = require('react')
 
   useEffect(() => {
     const initAuth = async () => {
