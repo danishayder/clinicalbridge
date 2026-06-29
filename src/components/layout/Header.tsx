@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils'
 import { useIsMobile, useIsDesktop } from '@/hooks/useMediaQuery'
 import { Menu, Bell, Search, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/Button'

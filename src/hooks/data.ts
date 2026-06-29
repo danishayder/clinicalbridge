@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 
+type AnyObject = Record<string, any>
+
 // ============================================================
 // HELPER: Get current user's org_id
 // ============================================================
@@ -12,7 +14,7 @@ async function getCurrentOrgId() {
     .from('profiles')
     .select('org_id')
     .eq('user_id', user.id)
-    .single()
+    .single() as any
   return profile?.org_id || null
 }
 
@@ -27,26 +29,22 @@ export function useDashboardStats() {
       const orgId = await getCurrentOrgId()
       if (!orgId) return null
 
-      // Count students
       const { count: studentsCount } = await supabase
         .from('students')
         .select('*', { count: 'exact', head: true })
         .eq('org_id', orgId)
 
-      // Count placements
       const { count: placementsCount } = await supabase
         .from('placements')
         .select('*', { count: 'exact', head: true })
         .eq('org_id', orgId)
 
-      // Count pending evaluations
       const { count: pendingEvals } = await supabase
         .from('evaluation_instances')
         .select('*', { count: 'exact', head: true })
         .eq('org_id', orgId)
         .eq('status', 'draft')
 
-      // Accreditation percentage
       const { data: standards } = await supabase
         .from('standards')
         .select('id')
@@ -62,7 +60,6 @@ export function useDashboardStats() {
       const mappedStandards = mappings?.length || 0
       const accreditationPct = totalStandards > 0 ? Math.round((mappedStandards / totalStandards) * 100) : 0
 
-      // Count cleared students (simplified)
       const clearedCount = studentsCount || 0
 
       return {
@@ -105,7 +102,6 @@ export function useActionItems() {
 
       const items = []
 
-      // Check capacity gaps
       const { data: capacityData } = await supabase
         .from('site_capacities')
         .select(`
@@ -114,8 +110,7 @@ export function useActionItems() {
         `)
         .eq('org_id', orgId)
 
-      // Filter in JavaScript instead of using .filter() which causes 400 errors
-      const atCapacity = capacityData?.filter(c => c.total_slots <= c.filled_slots) || []
+      const atCapacity = capacityData?.filter((c: any) => c.total_slots <= c.filled_slots) || []
 
       if (atCapacity.length > 0) {
         items.push({
@@ -124,7 +119,6 @@ export function useActionItems() {
         })
       }
 
-      // Check pending compliance docs
       const { count: pendingDocs } = await supabase
         .from('compliance_documents')
         .select('*', { count: 'exact', head: true })
@@ -138,7 +132,6 @@ export function useActionItems() {
         })
       }
 
-      // Check pending timecard attestations
       const { count: pendingAttestations } = await supabase
         .from('timecards')
         .select('*', { count: 'exact', head: true })
@@ -381,7 +374,7 @@ export function useTimecardStats() {
         .eq('org_id', orgId)
         .gte('clock_in_at', weekStart.toISOString())
 
-      const totalHours = (weekTimecards?.reduce((acc, t) => acc + (t.total_minutes || 0), 0) || 0) / 60
+      const totalHours = (weekTimecards?.reduce((acc: number, t: any) => acc + (t.total_minutes || 0), 0) || 0) / 60
 
       const { count: pendingAttestations } = await supabase
         .from('timecards')

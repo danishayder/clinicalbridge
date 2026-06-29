@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useIsDesktop, useIsTablet } from '@/hooks/useMediaQuery'
 import { 
   ShieldCheck, MapPin, Clock, ClipboardList, BarChart3, 
-  LayoutDashboard, Settings, HeartPulse, X, ChevronLeft, Users
+  LayoutDashboard, Settings, HeartPulse, X, Users
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'

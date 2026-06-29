@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { X, Upload, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+type AnyObject = Record<string, any>
+
 interface UploadDocumentModalProps {
   isOpen: boolean
   onClose: () => void
@@ -18,8 +20,8 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
   const [templateId, setTemplateId] = useState('')
   const [expiryDate, setExpiryDate] = useState('')
   const [file, setFile] = useState<File | null>(null)
-  const [students, setStudents] = useState<any[]>([])
-  const [templates, setTemplates] = useState<any[]>([])
+  const [students, setStudents] = useState<AnyObject[]>([])
+  const [templates, setTemplates] = useState<AnyObject[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
   const { toast } = useToast()
@@ -42,7 +44,7 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
         console.log('✅ Students found:', studentsData?.length)
 
         if (studentsData && studentsData.length > 0) {
-          const userIds = studentsData.map(s => s.user_id)
+          const userIds = studentsData.map((s: AnyObject) => s.user_id)
           const { data: profilesData, error: profilesError } = await supabase
             .from('profiles')
             .select('*')
@@ -51,9 +53,9 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
           if (profilesError) {
             console.error('❌ Profiles error:', profilesError)
           } else {
-            const merged = studentsData.map(student => ({
+            const merged = studentsData.map((student: AnyObject) => ({
               ...student,
-              profiles: profilesData?.find(p => p.user_id === student.user_id)
+              profiles: profilesData?.find((p: AnyObject) => p.user_id === student.user_id)
             }))
             setStudents(merged)
           }
@@ -92,7 +94,6 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
     setIsLoading(true)
 
     try {
-      // Upload file to Supabase Storage
       const fileExt = file.name.split('.').pop()
       const fileName = `${studentId}/${Date.now()}.${fileExt}`
       const filePath = `${fileName}`
@@ -113,14 +114,12 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
 
       console.log('✅ Upload successful')
 
-      // Get public URL
       const { data: urlData } = supabase.storage
         .from('compliance-docs')
         .getPublicUrl(filePath)
 
       console.log('📎 Public URL:', urlData.publicUrl)
 
-      // Create compliance document record
       const { error: docError } = await supabase
         .from('compliance_documents')
         .insert({
@@ -188,7 +187,7 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
                   required
                 >
                   <option value="">Select a student...</option>
-                  {students.map((s) => (
+                  {students.map((s: AnyObject) => (
                     <option key={s.id} value={s.id}>
                       {s.profiles?.first_name} {s.profiles?.last_name} ({s.student_id})
                     </option>
@@ -210,7 +209,7 @@ export function UploadDocumentModal({ isOpen, onClose, onSuccess, orgId }: Uploa
                   required
                 >
                   <option value="">Select document type...</option>
-                  {templates.map((t) => (
+                  {templates.map((t: AnyObject) => (
                     <option key={t.id} value={t.id}>
                       {t.name} {t.severity === 'required' ? '(Required)' : '(Optional)'}
                     </option>
