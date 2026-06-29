@@ -29,7 +29,11 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true,
       orgId: null,
-      setUser: (user) => set({ user, isAuthenticated: !!user, orgId: user?.org_id || null }),
+      setUser: (user) => set({ 
+        user, 
+        isAuthenticated: !!user, 
+        orgId: user?.org_id || null 
+      }),
       setSession: (session) => set({ session }),
       setLoading: (isLoading) => set({ isLoading }),
       logout: async () => {
@@ -63,30 +67,58 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'clinical-bridge-auth',
-      partialize: (state) => ({ user: state.user, session: state.session, isAuthenticated: state.isAuthenticated, orgId: state.orgId }),
+      partialize: (state) => ({ 
+        user: state.user, 
+        session: state.session, 
+        isAuthenticated: state.isAuthenticated, 
+        orgId: state.orgId 
+      }),
     }
   )
 )
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, logout, hasRole, isAdmin, isProgramAdmin, isStudent, isCI, isSiteAdmin } = useAuthStore()
-  return { user, isAuthenticated, isLoading, logout, hasRole, isAdmin, isProgramAdmin, isStudent, isCI, isSiteAdmin }
+  const { 
+    user, 
+    isAuthenticated, 
+    isLoading, 
+    logout, 
+    hasRole, 
+    isAdmin, 
+    isProgramAdmin, 
+    isStudent, 
+    isCI, 
+    isSiteAdmin,
+    orgId 
+  } = useAuthStore()
+  return { 
+    user, 
+    isAuthenticated, 
+    isLoading, 
+    logout, 
+    hasRole, 
+    isAdmin, 
+    isProgramAdmin, 
+    isStudent, 
+    isCI, 
+    isSiteAdmin,
+    orgId 
+  }
 }
 
 // Auth initialization hook
 export function useAuthInit() {
   const { setUser, setSession, setLoading } = useAuthStore()
+  const { useEffect } = require('react')
 
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true)
 
-      // Get current session
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
 
       if (session?.user) {
-        // Fetch profile with org info
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -100,9 +132,8 @@ export function useAuthInit() {
 
       setLoading(false)
 
-      // Listen for auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
+        async (_event, session) => {
           setSession(session)
           if (session?.user) {
             const { data: profile } = await supabase
@@ -123,5 +154,3 @@ export function useAuthInit() {
     initAuth()
   }, [])
 }
-
-import { useEffect } from 'react'

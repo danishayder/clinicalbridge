@@ -100,7 +100,7 @@ export function useActionItems() {
       const orgId = await getCurrentOrgId()
       if (!orgId) return []
 
-      const items = []
+      const items: AnyObject[] = []
 
       const { data: capacityData } = await supabase
         .from('site_capacities')
