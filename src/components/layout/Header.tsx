@@ -1,6 +1,8 @@
+import { useAuth } from '@/hooks/useAuth'
 import { useIsMobile, useIsDesktop } from '@/hooks/useMediaQuery'
-import { Menu, Bell, Search, Plus } from 'lucide-react'
+import { Menu, Bell, Search, Plus, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
   title: string
@@ -13,6 +15,13 @@ interface HeaderProps {
 export function Header({ title, subtitle, onMenuClick, onSearch, onNew }: HeaderProps) {
   const isMobile = useIsMobile()
   const isDesktop = useIsDesktop()
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
 
   return (
     <header className="bg-surface-0 border-b border-surface-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 safe-top">
@@ -52,6 +61,14 @@ export function Header({ title, subtitle, onMenuClick, onSearch, onNew }: Header
             New
           </Button>
         )}
+        {/* ✅ Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="p-2 hover:bg-surface-100 rounded-lg transition-colors text-surface-500 hover:text-danger-500"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
     </header>
   )

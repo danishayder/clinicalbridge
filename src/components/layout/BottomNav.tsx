@@ -1,14 +1,14 @@
 import { cn } from '@/lib/utils'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { 
-  ShieldCheck, MapPin, Clock, ClipboardList, LayoutDashboard, Users
+  ShieldCheck, MapPin, Clock, ClipboardList, LayoutDashboard, Users, GraduationCap
 } from 'lucide-react'
 
 const bottomItems = [
   { label: 'Students', icon: Users, path: '/students' },
+  { label: 'Cohorts', icon: GraduationCap, path: '/cohorts' },
   { label: 'Compliance', icon: ShieldCheck, path: '/compliance' },
   { label: 'Placements', icon: MapPin, path: '/placements' },
-  { label: 'Timecards', icon: Clock, path: '/timecards' },
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
 ]
 

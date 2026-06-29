@@ -5,20 +5,17 @@ import { Button } from '@/components/ui/Button'
 import { MetricCard } from '@/components/modules/MetricCard'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/useToast'
-import { useIsMobile } from '@/hooks/useMediaQuery'
-import { useStandards, useCourses, useUpdateMapping } from '@/hooks/data'
+import { useStandards, useUpdateMapping } from '@/hooks/data'
 import { Cpu, Download, CheckCircle, AlertTriangle, FileText, Plus, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function AccreditationPage() {
   const { isAdmin } = useAuth()
   const { toast } = useToast()
-  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState<'standards' | 'curriculum' | 'gaps' | 'export'>('standards')
   const [selectedStandard, setSelectedStandard] = useState<any>(null)
 
   const { data: standards, isLoading: standardsLoading } = useStandards()
-  const { data: courses } = useCourses()
   const updateMapping = useUpdateMapping()
 
   const totalStandards = standards?.length || 0

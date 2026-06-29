@@ -3,7 +3,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useIsDesktop, useIsTablet } from '@/hooks/useMediaQuery'
 import { 
   ShieldCheck, MapPin, Clock, ClipboardList, BarChart3, 
-  LayoutDashboard, Settings, HeartPulse, X, Users
+  LayoutDashboard, Settings, HeartPulse, X, Users, 
+  GraduationCap, BookOpen, LogOut
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -30,6 +31,8 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: 'Education',
     items: [
       { label: 'Students', icon: <Users className="w-[18px] h-[18px]" />, path: '/students' },
+      { label: 'Programs', icon: <BookOpen className="w-[18px] h-[18px]" />, path: '/programs' },
+      { label: 'Cohorts', icon: <GraduationCap className="w-[18px] h-[18px]" />, path: '/cohorts' },
       { label: 'Evaluations', icon: <ClipboardList className="w-[18px] h-[18px]" />, path: '/evaluations', badge: 4, badgeVariant: 'blue' },
       { label: 'Accreditation', icon: <BarChart3 className="w-[18px] h-[18px]" />, path: '/accreditation' },
     ],
@@ -53,11 +56,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const isTablet = useIsTablet()
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
 
   const handleNav = (path: string) => {
     navigate(path)
     if (!isDesktop) onClose()
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
   }
 
   // Tablet: icon-only sidebar
@@ -96,6 +104,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             {user?.first_name?.[0]}{user?.last_name?.[0]}
           </div>
         </div>
+        {/* ✅ Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full p-2 hover:bg-surface-100 transition-colors text-surface-500 hover:text-danger-500"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5 mx-auto" />
+        </button>
       </aside>
     )
   }
@@ -149,7 +165,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           ))}
         </nav>
 
-        {/* User */}
+        {/* User + Logout */}
         <div className="p-3 border-t border-surface-200">
           <div className="flex items-center gap-3 p-2 rounded-sm hover:bg-surface-100 cursor-pointer transition-colors">
             <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
@@ -164,6 +180,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
             </div>
           </div>
+          {/* ✅ Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-sm text-surface-500 hover:text-danger-500 hover:bg-danger-50 rounded-lg transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
     )
@@ -229,6 +253,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
               ))}
             </nav>
+            {/* ✅ Logout Button */}
+            <div className="p-4 border-t border-surface-200">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-500 hover:text-danger-500 hover:bg-danger-50 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
           </motion.aside>
         </>
       )}
