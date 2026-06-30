@@ -33,6 +33,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { label: 'Students', icon: <Users className="w-[18px] h-[18px]" />, path: '/students' },
       { label: 'Programs', icon: <BookOpen className="w-[18px] h-[18px]" />, path: '/programs' },
       { label: 'Cohorts', icon: <GraduationCap className="w-[18px] h-[18px]" />, path: '/cohorts' },
+      { label: 'Rotation Blocks', icon: <Clock className="w-[18px] h-[18px]" />, path: '/rotation-blocks' },
       { label: 'Evaluations', icon: <ClipboardList className="w-[18px] h-[18px]" />, path: '/evaluations', badge: 4, badgeVariant: 'blue' },
       { label: 'Accreditation', icon: <BarChart3 className="w-[18px] h-[18px]" />, path: '/accreditation' },
     ],
@@ -104,7 +105,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             {user?.first_name?.[0]}{user?.last_name?.[0]}
           </div>
         </div>
-        {/* ✅ Logout Button */}
         <button
           onClick={handleLogout}
           className="w-full p-2 hover:bg-surface-100 transition-colors text-surface-500 hover:text-danger-500"
@@ -180,7 +180,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
             </div>
           </div>
-          {/* ✅ Logout Button */}
           <button
             onClick={handleLogout}
             className="w-full mt-2 flex items-center gap-2 px-3 py-2 text-sm text-surface-500 hover:text-danger-500 hover:bg-danger-50 rounded-lg transition-colors"
@@ -253,7 +252,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
               ))}
             </nav>
-            {/* ✅ Logout Button */}
             <div className="p-4 border-t border-surface-200">
               <button
                 onClick={handleLogout}

@@ -12,6 +12,7 @@ import { PlacementsPage } from '@/pages/PlacementsPage'
 import { TimecardsPage } from '@/pages/TimecardsPage'
 import { EvaluationsPage } from '@/pages/EvaluationsPage'
 import { AccreditationPage } from '@/pages/AccreditationPage'
+import { RotationBlocksPage } from '@/pages/RotationBlocksPage'
 
 function App() {
   return (
@@ -41,6 +42,12 @@ function App() {
         <Route path="/students" element={
           <ProtectedRoute allowedRoles={['system_admin', 'program_admin', 'faculty', 'clinical_instructor']}>
             <StudentsPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/rotation-blocks" element={
+          <ProtectedRoute allowedRoles={['system_admin', 'program_admin']}>
+            <RotationBlocksPage />
           </ProtectedRoute>
         } />
 

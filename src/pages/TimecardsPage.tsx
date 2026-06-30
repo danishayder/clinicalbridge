@@ -11,25 +11,68 @@ import {
   useTimecards, useTimecardStats, useClockIn, useClockOut, useAttestTimecard, usePendingAttestations 
 } from '@/hooks/data'
 import { 
-  Clock, Play, Square, AlertTriangle, MapPin, CheckCircle, 
-  Calendar, TrendingUp, Clock3, Loader2 
+  Play, Square, AlertTriangle, MapPin, CheckCircle, Loader2 
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
+
+// ============================================================
+// HELPER: Get first available placement for student
+// ============================================================
+
+async function getStudentPlacement(studentId: string) {
+  if (!studentId) return null
+  
+  const { data, error } = await supabase
+    .from('placements')
+    .select('id, site_id, block_id')
+    .eq('student_id', studentId)
+    .in('status', ['CONFIRMED', 'ACTIVE', 'SITE_APPROVED'])
+    .maybeSingle()
+  
+  if (error) {
+    console.error('❌ Error fetching placement:', error)
+    return null
+  }
+  
+  return data
+}
 
 export function TimecardsPage() {
-  const { user, isStudent, isCI } = useAuth()
+  const { user } = useAuth()
   const { toast } = useToast()
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState<'clock' | 'roster' | 'attest' | 'audit'>('clock')
   const [clockedIn, setClockedIn] = useState(false)
   const [activeTimecardId, setActiveTimecardId] = useState<string | null>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [placementId, setPlacementId] = useState<string | null>(null)
+  const [siteId, setSiteId] = useState<string | null>(null)
+  const [blockId, setBlockId] = useState<string | null>(null)
 
   const { data: timecards, isLoading: timecardsLoading } = useTimecards()
-  const { data: stats, isLoading: statsLoading } = useTimecardStats()
+  const { data: stats } = useTimecardStats()
   const clockInMutation = useClockIn()
   const clockOutMutation = useClockOut()
   const attestMutation = useAttestTimecard()
   const { data: pendingAttestations, isLoading: attestationsLoading } = usePendingAttestations(user?.id || '')
+
+  // Get student placement on mount
+  useEffect(() => {
+    async function fetchPlacement() {
+      if (!user?.id) return
+      const placement = await getStudentPlacement(user.id)
+      if (placement) {
+        setPlacementId(placement.id)
+        setSiteId(placement.site_id)
+        setBlockId(placement.block_id)
+      } else {
+        // No placement found - show a toast message
+        toast('No active placement found. Please contact your coordinator.', 'warning')
+      }
+    }
+    fetchPlacement()
+  }, [user?.id])
 
   // Live clock
   useEffect(() => {
@@ -38,26 +81,38 @@ export function TimecardsPage() {
   }, [])
 
   const handleClockIn = async () => {
+    if (!placementId || !siteId || !blockId) {
+      toast('No active placement found. Please contact your coordinator.', 'error')
+      return
+    }
+
     try {
       let lat = null, lng = null
       if (navigator.geolocation) {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
-        })
-        lat = pos.coords.latitude
-        lng = pos.coords.longitude
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
+          })
+          lat = pos.coords.latitude
+          lng = pos.coords.longitude
+        } catch (geoError) {
+          console.warn('Geolocation not available:', geoError)
+        }
       }
 
-      const { data } = await clockInMutation.mutateAsync({
+      const clockInData = {
         student_id: user?.id,
-        site_id: 'placeholder-site-id',
-        block_id: 'placeholder-block-id',
-        placement_id: 'placeholder-placement-id',
+        site_id: siteId,
+        block_id: blockId,
+        placement_id: placementId,
         clock_in_at: new Date().toISOString(),
         clock_in_lat: lat,
         clock_in_lng: lng,
         status: 'ACTIVE',
-      })
+        break_minutes: 0,
+      }
+
+      const { data } = await clockInMutation.mutateAsync(clockInData)
 
       setClockedIn(true)
       setActiveTimecardId(data.id)
@@ -73,21 +128,27 @@ export function TimecardsPage() {
     try {
       let lat = null, lng = null
       if (navigator.geolocation) {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
-        })
-        lat = pos.coords.latitude
-        lng = pos.coords.longitude
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
+          })
+          lat = pos.coords.latitude
+          lng = pos.coords.longitude
+        } catch (geoError) {
+          console.warn('Geolocation not available:', geoError)
+        }
+      }
+
+      const clockOutData = {
+        clock_out_at: new Date().toISOString(),
+        clock_out_lat: lat,
+        clock_out_lng: lng,
+        status: 'SUBMITTED',
       }
 
       await clockOutMutation.mutateAsync({
         id: activeTimecardId,
-        clockOutData: {
-          clock_out_at: new Date().toISOString(),
-          clock_out_lat: lat,
-          clock_out_lng: lng,
-          status: 'SUBMITTED',
-        },
+        clockOutData,
       })
 
       setClockedIn(false)
@@ -170,18 +231,39 @@ export function TimecardsPage() {
 
             <div className="flex gap-3 justify-center">
               {!clockedIn ? (
-                <Button variant="primary" size="lg" leftIcon={<Play className="w-5 h-5" />} onClick={handleClockIn}>
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  leftIcon={<Play className="w-5 h-5" />} 
+                  onClick={handleClockIn}
+                  disabled={!placementId}
+                >
                   Clock In
                 </Button>
               ) : (
-                <Button variant="danger" size="lg" leftIcon={<Square className="w-5 h-5" />} onClick={handleClockOut}>
+                <Button 
+                  variant="danger" 
+                  size="lg" 
+                  leftIcon={<Square className="w-5 h-5" />} 
+                  onClick={handleClockOut}
+                >
                   Clock Out
                 </Button>
               )}
-              <Button variant="secondary" size="lg" leftIcon={<AlertTriangle className="w-5 h-5" />}>
+              <Button 
+                variant="secondary" 
+                size="lg" 
+                leftIcon={<AlertTriangle className="w-5 h-5" />}
+              >
                 Missed Punch
               </Button>
             </div>
+
+            {!placementId && (
+              <div className="mt-4 text-sm text-warning-500 bg-warning-50 p-3 rounded-lg">
+                No active placement found. Please contact your coordinator.
+              </div>
+            )}
 
             {clockedIn && (
               <div className="mt-4 text-xs text-surface-500">
@@ -348,5 +430,3 @@ export function TimecardsPage() {
     </div>
   )
 }
-
-import { cn } from '@/lib/utils'
